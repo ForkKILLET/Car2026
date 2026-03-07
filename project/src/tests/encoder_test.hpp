@@ -4,13 +4,14 @@
 class encoder_test : public fp_task {
 public:
   void work() override {
+    auto encoder_l = zf_driver_encoder("/dev/zf_encoder_quad_2");
+    auto encoder_r = zf_driver_encoder("/dev/zf_encoder_quad_1");
+
     while (true) {
-      auto encoder_1 = zf_driver_encoder("/dev/zf_encoder_1");
-      auto encoder_2 = zf_driver_encoder("/dev/zf_encoder_2");
 
       std::cout
-        << "encoder_1: " << encoder_1.get_count() << ", "
-        << "encoder_2: " << encoder_2.get_count() << std::endl;
+        << "encoder left: " << encoder_l.get_count() << ", "
+        << "right: " << encoder_r.get_count() << std::endl;
 
       system_delay_ms(100);
     }
