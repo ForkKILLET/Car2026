@@ -53,32 +53,34 @@ include_directories(../libraries/zf_components/ncnn/include/ncnn/)
 link_directories(../libraries/zf_components/ncnn/lib)
 
 # TFLM includes
-include_directories(../libraries/zf_components/tflm)
-include_directories(../libraries/zf_components/tflm/third_party/flatbuffers/include)
-include_directories(../libraries/zf_components/tflm/third_party/gemmlowp)
-include_directories(../libraries/zf_components/tflm/third_party/gemmlowp/fixedpoint)
-include_directories(../libraries/zf_components/tflm/third_party/ruy)
-include_directories(../libraries/zf_components/tflm/third_party/ruy/ruy)
-include_directories(../libraries/zf_components/tflm/tensorflow/lite/micro)
-include_directories(../libraries/zf_components/tflm/tensorflow/lite/micro/kernels)
-include_directories(../libraries/zf_components/tflm/tensorflow/lite/kernels/internal)
-include_directories(../libraries/zf_components/tflm/tensorflow/lite/core/api)
-include_directories(../libraries/zf_components/tflm/tensorflow/lite/core/c)
-include_directories(../libraries/zf_components/tflm/tensorflow/lite/schema)
+include_directories(
+  ../libraries/zf_components/tflm
+  ../libraries/zf_components/tflm/third_party/flatbuffers/include
+  ../libraries/zf_components/tflm/third_party/gemmlowp
+  ../libraries/zf_components/tflm/third_party/gemmlowp/fixedpoint
+  ../libraries/zf_components/tflm/third_party/ruy
+  ../libraries/zf_components/tflm/third_party/ruy/ruy
+  ../libraries/zf_components/tflm/tensorflow/lite/micro
+  ../libraries/zf_components/tflm/tensorflow/lite/micro/kernels
+  ../libraries/zf_components/tflm/tensorflow/lite/kernels/internal
+  ../libraries/zf_components/tflm/tensorflow/lite/core/api
+  ../libraries/zf_components/tflm/tensorflow/lite/core/c
+  ../libraries/zf_components/tflm/tensorflow/lite/schema
+)
 
 # TFLM sources
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/compiler/mlir/lite/core/api DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/compiler/mlir/lite/schema DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/core/api DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/core/c DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/kernels DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/kernels/internal DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/cortex_m_generic DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/arena_allocator DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/memory_planner DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/tflite_bridge DIR_SRCS)
-aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/kernels DIR_SRCS)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/compiler/mlir/lite/core/api SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/compiler/mlir/lite/schema SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/core/api SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/core/c SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/kernels SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/kernels/internal SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/cortex_m_generic SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/arena_allocator SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/memory_planner SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/tflite_bridge SOURCES)
+aux_source_directory(../libraries/zf_components/tflm/tensorflow/lite/micro/kernels SOURCES)
 
 # Seekfree includes
 include_directories(../libraries/zf_common)
@@ -87,20 +89,29 @@ include_directories(../libraries/zf_driver)
 include_directories(../libraries/zf_components/seekfree_assistant)
 
 # Seekfree sources
-aux_source_directory(../libraries/zf_common DIR_SRCS)
-aux_source_directory(../libraries/zf_device DIR_SRCS)
-aux_source_directory(../libraries/zf_driver DIR_SRCS)
-aux_source_directory(../libraries/zf_components/seekfree_assistant DIR_SRCS)
+aux_source_directory(../libraries/zf_common SOURCES)
+aux_source_directory(../libraries/zf_device SOURCES)
+aux_source_directory(../libraries/zf_driver SOURCES)
+aux_source_directory(../libraries/zf_components/seekfree_assistant SOURCES)
 
 # Includes
+include_directories(./model)
 include_directories(./src)
 
 # Sources
-aux_source_directory(./src DIR_SRCS)
-aux_source_directory(./model DIR_SRCS)
+aux_source_directory(./model SOURCES)
+aux_source_directory(./src SOURCES)
+aux_source_directory(./src/tests SOURCES)
+aux_source_directory(./src/camera SOURCES)
 
 # Create executable
-add_executable(${PROJECT_NAME} ${DIR_SRCS})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 # OpenCV linking
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(
+  ${PROJECT_NAME}
+  # m
+  # pthread
+  # ${OpenCV_LIBS}
+  # tflm
+)

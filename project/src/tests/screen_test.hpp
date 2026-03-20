@@ -5,7 +5,7 @@
 constexpr useconds_t FPS = 1;
 constexpr useconds_t MSPF = 1000 / FPS;
 
-class screen_test : public fp_task {
+class fp_screen_test : public fp_task {
 public:
   void init() override;
   void work() override;
@@ -15,11 +15,11 @@ private:
   zf_device_ips200 ips200_{};
 };
 
-void screen_test::init() {
+void fp_screen_test::init() {
   ips200_.init(FB_PATH);
 }
 
-void screen_test::work() {
+void fp_screen_test::work() {
   std::cout << "Start testing screen ..." << std::endl;
   while (true) {
     ips200_.clear();
@@ -28,7 +28,7 @@ void screen_test::work() {
   }
 }
 
-void screen_test::paint() {
+void fp_screen_test::paint() {
   std::cout << "Painting ..." << std::endl;
   ips200_.full(RGB565_39C5BB);
 }

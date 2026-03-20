@@ -1,7 +1,7 @@
 #pragma once
 #include <zf_common_headfile.hpp>
 
-class encoder_test : public fp_task {
+class fp_encoder_test : public fp_task {
 public:
   void work() override {
     auto encoder_l = zf_driver_encoder("/dev/zf_encoder_quad_2");

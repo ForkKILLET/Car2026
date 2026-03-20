@@ -8,7 +8,7 @@ public:
     dir_(dir_device, O_RDWR)
   {}
 
-  pwm_info pwm_info_ {};
+  pwm_info pwm_info_{};
   zf_driver_pwm pwm_;
   zf_driver_gpio dir_;
 
