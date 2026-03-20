@@ -2,3 +2,5 @@ project/build
 project/config.cmake
 .cache
 libraries
+
+NOTE.md
