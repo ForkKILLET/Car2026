@@ -8,7 +8,6 @@ public:
     auto encoder_r = zf_driver_encoder("/dev/zf_encoder_quad_1");
 
     while (true) {
-
       std::cout
         << "encoder left: " << encoder_l.get_count() << ", "
         << "right: " << encoder_r.get_count() << std::endl;
