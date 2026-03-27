@@ -15,6 +15,9 @@ endif()
 # Project
 project(final-phase VERSION 0.1.0 LANGUAGES C CXX)
 
+# 生成 compile_commands.json，供 VS Code IntelliSense 使用
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Cross compilation settings
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR loongson)

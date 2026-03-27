@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/home/forkkillet/Apps/opencv_4_10_build/include/opencv4",
-                "/opt/ls_2k0300_env/opencv_4_10_build/include/opencv4"
+                "/opt/ls_2k0300_env/opencv_4_10_build/include/opencv4",
+                "${workspaceFolder}/libraries/zf_common"
             ],
             "defines": [],
             "cStandard": "c17",
