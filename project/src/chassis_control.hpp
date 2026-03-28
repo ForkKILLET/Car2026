@@ -5,19 +5,19 @@
 #include "motor_speed_control.hpp"
 
 // 功能：
-// 1初始化左右编码器测速
-// 2初始化左右电机
-// 3初始化左右轮增量 pid
-// 4提供左右轮目标速度设置接口
-// 5提供左右轮闭环更新接口
+// 初始化左右编码器测速
+// 初始化左右电机
+// 初始化左右轮增量 pid
+// 提供左右轮目标速度设置接口
+// 提供左右轮闭环更新接口
 
 
 // 路径
-static encoder_speed_system encoder_sys("/encoder_l",
-                                    "/encoder_r");
+static encoder_speed_system encoder_sys("/dev/zf_encoder_quad_1",
+                                    "/dev/zf_encoder_quad_2");
 
-static fp_motor motor_l("/pwm_l", "/dir_l");
-static fp_motor motor_r("/pwm_r", "/dir_r");
+static fp_motor motor_l("/dev/zf_pwm_motor_1", "/dev/zf_gpio_motor_1");
+static fp_motor motor_r("/dev/zf_pwm_motor_2", "/dev/zf_gpio_motor_2");
 
 static motor_speed_control motor_l_ctrl;
 static motor_speed_control motor_r_ctrl;
