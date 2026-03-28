@@ -1,5 +1,10 @@
 #pragma once
-#include <zf_common_headfile.hpp>
+#include "zf_driver_pwm.hpp"
+#include "zf_driver_gpio.hpp"
+#include "zf_common_typedef.hpp"
+
+#include <algorithm>
+#include <cmath>
 
 class fp_motor {
 public:

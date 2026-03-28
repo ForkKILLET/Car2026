@@ -61,11 +61,10 @@ struct encoder_speed_system
 
     // 构造函数
     encoder_speed_system(const char* encoder_l_path,
-                         const char* encoder_r_path,
-                         const char* timer_path)
+                         const char* encoder_r_path)
         : encoder_l(encoder_l_path, O_RDWR),
           encoder_r(encoder_r_path, O_RDWR),
-          timer(timer_path, O_RDWR)
+          timer{}
     {
         count_l = 0;
         count_r = 0;
@@ -102,19 +101,19 @@ static inline void encoder_speed_timer_callback(void)
 
     encoder_speed_system& sys = *g_encoder_speed_system;
 
-    // 1. 读取本周期编码器计数
+    //读取本周期编码器计数
     sys.count_l = sys.encoder_l.get_count();
     sys.count_r = sys.encoder_r.get_count();
 
-    // 2. 立刻清零，准备下一周期重新计数
+    //立刻清零
     sys.encoder_l.clear_count();
     sys.encoder_r.clear_count();
 
-    // 3. 软件累计总数
+    //累计总数
     sys.total_l += sys.count_l;
     sys.total_r += sys.count_r;
 
-    // 4. 计算原始速度
+    //原始速度
     sys.speed_l_raw =
         (float)(sys.count_l) *
         sys.meter_per_count_l /
@@ -125,7 +124,7 @@ static inline void encoder_speed_timer_callback(void)
         sys.meter_per_count_r /
         sys.dt_s;
 
-    // 5. 一阶低通滤波
+    //一阶低通滤波
     sys.speed_l =
         sys.alpha * sys.speed_l_raw +
         (1.0f - sys.alpha) * sys.speed_l;
@@ -134,11 +133,11 @@ static inline void encoder_speed_timer_callback(void)
         sys.alpha * sys.speed_r_raw +
         (1.0f - sys.alpha) * sys.speed_r;
 
-    // 6. 小车线速度
+    //小车线速度
     sys.speed_car =
         (sys.speed_l + sys.speed_r) * 0.5f;
 
-    // 7. 小车角速度
+    //小车角速度
     if (sys.wheel_base > 0.000001f)
     {
         sys.yaw_rate =
