@@ -181,8 +181,7 @@ static inline void control_manager_loop(control_manager& ctrl, float dt_s)
     ctrl.turn = ctrl.steer_ctrl.turn;
 
     // 简单速度规划：转弯时降速
-    base_speed_plan = ctrl.base_speed_target
-                    - ctrl.turn_slow_gain * std::fabs(ctrl.turn);
+    base_speed_plan = ctrl.base_speed_target - ctrl.turn_slow_gain * std::fabs(ctrl.turn);
 
     if (base_speed_plan < ctrl.base_speed_min)
     {

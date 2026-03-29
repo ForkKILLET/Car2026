@@ -7,7 +7,7 @@
 // 基本公式：
 // target_l = base_speed - turn
 // target_r = base_speed + turn
-// turn 本质上等价于 w * wheel_base / 2
+// turn = w * wheel_base / 2
 
 struct diff_drive
 {
@@ -87,7 +87,7 @@ static inline void diff_drive_update(diff_drive& drive)
 }
 
 
-// 应用到左右轮闭环
+// 左右轮闭环
 static inline void diff_drive_apply(diff_drive& drive)
 {
     chassis_set_target_speed(drive.target_l, drive.target_r);

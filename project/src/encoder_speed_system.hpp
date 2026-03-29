@@ -3,14 +3,11 @@
 #include "zf_driver_pit.hpp"
 #include "zf_common_typedef.hpp"
 
-// 前向声明
 struct encoder_speed_system;
 
 // 全局指针
 static encoder_speed_system* g_encoder_speed_system = 0;
 
-
-// 编码器测速结构体
 struct encoder_speed_system
 {
     // 左右编码器对象
@@ -28,34 +25,32 @@ struct encoder_speed_system
     int32 total_l;
     int32 total_r;
 
-    // 左右轮原始速度（m/s）
+    // 左右轮原始速度
     float speed_l_raw;
     float speed_r_raw;
 
-    // 左右轮滤波后速度（m/s）
+    // 滤波后速度
     float speed_l;
     float speed_r;
 
-    // 小车线速度（m/s）
+    // 小车线速度
     float speed_car;
 
-    // 小车角速度（rad/s）
+    // 小车角速度
     float yaw_rate;
 
-    // 左右轮每个编码器计数对应的路程（m/count）
+    // 左右轮每个编码器计数对应的路程
     float meter_per_count_l;
     float meter_per_count_r;
 
-    // 左右轮中心距（m）
+    // 左右轮中心距
     float wheel_base;
 
     // 一阶低通滤波系数
     float alpha;
 
-    // 定时器周期（秒）
+    // 定时器周期
     float dt_s;
-
-    // 定时器周期（毫秒）
     int timer_ms;
 
     // 构造函数
@@ -91,7 +86,6 @@ struct encoder_speed_system
     }
 };
 
-
 // pit 定时器回调函数
 static inline void encoder_speed_timer_callback(void)
 {
@@ -113,35 +107,22 @@ static inline void encoder_speed_timer_callback(void)
     sys.total_r += sys.count_r;
 
     //原始速度
-    sys.speed_l_raw =
-        (float)(sys.count_l) *
-        sys.meter_per_count_l /
-        sys.dt_s;
+    sys.speed_l_raw = (float)(sys.count_l) * sys.meter_per_count_l / sys.dt_s;
 
-    sys.speed_r_raw =
-        (float)(sys.count_r) *
-        sys.meter_per_count_r /
-        sys.dt_s;
+    sys.speed_r_raw = (float)(sys.count_r) * sys.meter_per_count_r / sys.dt_s;
 
     //一阶低通滤波
-    sys.speed_l =
-        sys.alpha * sys.speed_l_raw +
-        (1.0f - sys.alpha) * sys.speed_l;
+    sys.speed_l = sys.alpha * sys.speed_l_raw + (1.0f - sys.alpha) * sys.speed_l;
 
-    sys.speed_r =
-        sys.alpha * sys.speed_r_raw +
-        (1.0f - sys.alpha) * sys.speed_r;
+    sys.speed_r = sys.alpha * sys.speed_r_raw + (1.0f - sys.alpha) * sys.speed_r;
 
     //小车线速度
-    sys.speed_car =
-        (sys.speed_l + sys.speed_r) * 0.5f;
+    sys.speed_car = (sys.speed_l + sys.speed_r) * 0.5f;
 
     //小车角速度
     if (sys.wheel_base > 0.000001f)
     {
-        sys.yaw_rate =
-            (sys.speed_r - sys.speed_l) /
-            sys.wheel_base;
+        sys.yaw_rate = (sys.speed_r - sys.speed_l) / sys.wheel_base;
     }
     else
     {

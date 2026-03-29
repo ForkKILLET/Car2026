@@ -39,7 +39,6 @@ struct steering_control
     }
 };
 
-
 // 初始化
 static inline void steering_control_init(steering_control& ctrl,
                                          float kp,
@@ -58,7 +57,6 @@ static inline void steering_control_init(steering_control& ctrl,
 
     ctrl.deadband = deadband;
 }
-
 
 // 清零
 static inline void steering_control_clear(steering_control& ctrl)
@@ -103,7 +101,7 @@ static inline void steering_control_update(steering_control& ctrl,
 }
 
 
-// 输入当前偏差，目标默认 0
+// 输入当前偏差
 static inline void steering_control_run(steering_control& ctrl,
                                         float line_error)
 {

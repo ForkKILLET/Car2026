@@ -3,7 +3,7 @@
 #include "motor.hpp"
 #include "zf_common_typedef.hpp"
 
-// 单个电机速度闭环控制（增量 pid）
+// 单个电机速度闭环控制
 // 目标速度 - 当前速度 -> 增量 pid -> pwm 输出
 
 struct motor_speed_control
@@ -51,8 +51,6 @@ static inline void motor_speed_init(motor_speed_control& ctrl,
 }
 
 
-
-
 // 设置目标速度
 static inline void motor_speed_set_target(motor_speed_control& ctrl,
                                           float target_speed)
@@ -60,9 +58,7 @@ static inline void motor_speed_set_target(motor_speed_control& ctrl,
     ctrl.target_speed = target_speed;
 }
 
-
 // 设置当前速度
-// 传编码器测速得到的 speed_l 或 speed_r
 static inline void motor_speed_set_current(motor_speed_control& ctrl,
                                            float current_speed)
 {
