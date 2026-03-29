@@ -69,7 +69,7 @@ static inline void steering_control_clear(steering_control& ctrl)
 }
 
 
-// 更新一次方向控制
+// 更新方向控制
 static inline void steering_control_update(steering_control& ctrl,
                                            float target_error,
                                            float current_error)
@@ -103,7 +103,7 @@ static inline void steering_control_update(steering_control& ctrl,
 }
 
 
-// 直接输入当前偏差，目标默认是 0
+// 输入当前偏差，目标默认 0
 static inline void steering_control_run(steering_control& ctrl,
                                         float line_error)
 {

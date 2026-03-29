@@ -6,9 +6,8 @@
 // 前向声明
 struct encoder_speed_system;
 
-// 给 pit 回调函数使用的全局指针
+// 全局指针
 static encoder_speed_system* g_encoder_speed_system = 0;
-
 
 
 // 编码器测速结构体
@@ -195,14 +194,14 @@ static inline void encoder_speed_init(encoder_speed_system& sys,
 }
 
 
-// 停止测速
+// 停止
 static inline void encoder_speed_stop(encoder_speed_system& sys)
 {
     sys.timer.stop();
 }
 
 
-// 清零测速数据
+// 清零
 static inline void encoder_speed_clear(encoder_speed_system& sys)
 {
     sys.count_l = 0;
