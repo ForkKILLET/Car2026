@@ -3,6 +3,7 @@
 #include "encoder_speed_system.hpp"
 #include "motor.hpp"
 #include "motor_speed_control.hpp"
+#include "control_params.hpp"
 
 // 路径
 static encoder_speed_system encoder_sys("/dev/zf_encoder_quad_1",
@@ -22,21 +23,30 @@ static inline void chassis_control_init(void)
     // 1907 count -> 0.201 m
     k = 0.201f / 1907.0f;
 
-    // 编码器测速初始化
     encoder_speed_init(encoder_sys,
-                       k,
-                       k,
-                       0.2f,   // 轮距
-                       0.5f,    // 滤波系数
-                       20);     // 定时器周期 20ms
+                   params.encoder.meter_per_count_l,
+                   params.encoder.meter_per_count_r,
+                   params.encoder.wheel_base,
+                   params.encoder.alpha,
+                   params.encoder.timer_ms);
 
     // 电机初始化
     motor_l.init();
     motor_r.init();
 
-    // 左右轮增量 pid 初始化
-    motor_speed_init(motor_l_ctrl, 50.0f, 5.0f, 1.0f, 1000.0f, 1000);
-    motor_speed_init(motor_r_ctrl, 50.0f, 5.0f, 1.0f, 1000.0f, 1000);
+    motor_speed_init(motor_l_ctrl,
+                 params.motor_l_pid.kp,
+                 params.motor_l_pid.ki,
+                 params.motor_l_pid.kd,
+                 params.motor_l_pid.error_limit,
+                 params.motor_l_pid.pwm_limit);
+
+    motor_speed_init(motor_r_ctrl,
+                 params.motor_r_pid.kp,
+                 params.motor_r_pid.ki,
+                 params.motor_r_pid.kd,
+                 params.motor_r_pid.error_limit,
+                 params.motor_r_pid.pwm_limit);
 
     // 初始目标速度设为 0
     motor_speed_set_target(motor_l_ctrl, 0.0f);
