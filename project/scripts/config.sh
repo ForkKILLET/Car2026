@@ -7,7 +7,7 @@ BUILD_DIR=${ROOT_DIR}/build
 SRC_DIR=${ROOT_DIR}/src
 
 SSH_HOST=ls2k-local
-SSH_PATH=/root/bin
+SSH_PATH=/home/root/bin
 MAKE_JOBS=$(nproc)
 
 # utils
