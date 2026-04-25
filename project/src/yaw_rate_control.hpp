@@ -5,7 +5,7 @@
 
 struct yaw_rate_control
 {
-    PID pid;
+    pid_ctrl pid;
 
     float yaw_rate_target;
     float yaw_rate_current;
@@ -32,8 +32,8 @@ static inline void yaw_rate_control_init(yaw_rate_control& ctrl,
                                          float error_limit,
                                          float turn_limit)
 {
-    PID_set(ctrl.pid, PID_POS, kp, ki, kd);
-    PID_limit(ctrl.pid, error_limit, turn_limit);
+    pid_set(ctrl.pid, PID_POS, kp, ki, kd);
+    pid_limit(ctrl.pid, error_limit, turn_limit);
 
     ctrl.yaw_rate_target = 0.0f;
     ctrl.yaw_rate_current = 0.0f;
@@ -50,7 +50,7 @@ static inline void yaw_rate_control_clear(yaw_rate_control& ctrl)
     ctrl.yaw_rate_current = 0.0f;
     ctrl.turn = 0.0f;
 
-    PID_clean(ctrl.pid);
+    pid_clean(ctrl.pid);
 }
 
 
@@ -62,7 +62,7 @@ static inline void yaw_rate_control_update(yaw_rate_control& ctrl,
     ctrl.yaw_rate_target = yaw_rate_target;
     ctrl.yaw_rate_current = yaw_rate_current;
 
-    PID_position(ctrl.pid,
+    pid_position(ctrl.pid,
                  ctrl.yaw_rate_target,
                  ctrl.yaw_rate_current);
 

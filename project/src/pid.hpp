@@ -1,15 +1,16 @@
+#pragma once
 #include <cmath>
 #include "zf_common_typedef.hpp"
 
-enum PIDType
+enum pid_type
 {
   PID_POS, // 位置式PID
   PID_INC, // 增量式PID
 };
 
-struct PID
+struct pid_ctrl
 {
-  PIDType type; // PID类型
+  pid_type type; // PID类型
 
   float kp;
   float ki;
@@ -28,7 +29,7 @@ struct PID
   float output_limit; // 输出限幅
 };
 
-void PID_set(PID &pid, PIDType type, float kp, float ki, float kd)
+void pid_set(pid_ctrl &pid, pid_type type, float kp, float ki, float kd)
 {
   pid.type = type;
 
@@ -49,13 +50,13 @@ void PID_set(PID &pid, PIDType type, float kp, float ki, float kd)
   pid.output_limit = 1000.0f;
 }
 
-void PID_limit(PID &pid, float error_limit, float output_limit)
+void pid_limit(pid_ctrl &pid, float error_limit, float output_limit)
 {
   pid.error_limit = error_limit;
   pid.output_limit = output_limit;
 }
 
-void PID_position(PID &pid, float target, float current)
+void pid_position(pid_ctrl &pid, float target, float current)
 {
   float delta_error;
 
@@ -110,7 +111,7 @@ void PID_position(PID &pid, float target, float current)
   pid.error_last = pid.error;
 }
 
-void PID_increment(PID &pid, float target, float current)
+void pid_increment(pid_ctrl &pid, float target, float current)
 {
   float delta_output;
 
@@ -134,7 +135,7 @@ void PID_increment(PID &pid, float target, float current)
   pid.error_last = pid.error;
 }
 
-void PID_clean(PID &pid)
+void pid_clean(pid_ctrl &pid)
 {
   pid.error_previous = 0.0f;
   pid.error_last = 0.0f;

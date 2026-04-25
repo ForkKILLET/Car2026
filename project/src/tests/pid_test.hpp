@@ -3,8 +3,8 @@
 #include "task.hpp"
 #include "pid.hpp"
 
-static PID pid_l{};
-static PID pid_r{};
+static pid_ctrl pid_l{};
+static pid_ctrl pid_r{};
 static auto encoder_l = zf_driver_encoder("/dev/zf_encoder_quad_2");
 static auto encoder_r = zf_driver_encoder("/dev/zf_encoder_quad_1");
 
@@ -22,10 +22,10 @@ public:
 
   void work() override {
     // 初始化 PID
-    PID_set(pid_l, PID_INC, 0.8, 0.2, 0.05);
-    PID_limit(pid_l, 0xFFFF, 80.0);
-    PID_set(pid_r, PID_INC, 0.8, 0.2, 0.05);
-    PID_limit(pid_r, 0xFFFF, 80.0);
+    pid_set(pid_l, PID_INC, 0.8, 0.2, 0.05);
+    pid_limit(pid_l, 0xFFFF, 80.0);
+    pid_set(pid_r, PID_INC, 0.8, 0.2, 0.05);
+    pid_limit(pid_r, 0xFFFF, 80.0);
 
     // 初始化定时器
     zf_driver_pit timer{};
@@ -52,7 +52,7 @@ public:
     float l_current_speed = l_count_delta * encoder_prop;
     float r_current_speed = r_count_delta * encoder_prop;
 
-    PID_increment(pid_l, target_speed, l_current_speed);
-    PID_increment(pid_r, target_speed, r_current_speed);
+    pid_increment(pid_l, target_speed, l_current_speed);
+    pid_increment(pid_r, target_speed, r_current_speed);
   }
 };

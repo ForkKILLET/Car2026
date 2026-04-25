@@ -15,9 +15,6 @@ endif()
 # Project
 project(final-phase VERSION 0.1.0 LANGUAGES C CXX)
 
-# 生成 compile_commands.json，供 VS Code IntelliSense 使用
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # Cross compilation settings
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR loongson)
@@ -105,12 +102,11 @@ include_directories(./src)
 aux_source_directory(./model SOURCES)
 aux_source_directory(./src SOURCES)
 aux_source_directory(./src/tests SOURCES)
-aux_source_directory(./src/camera SOURCES)
 
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# OpenCV linking
+# Linking
 target_link_libraries(
   ${PROJECT_NAME}
   # m

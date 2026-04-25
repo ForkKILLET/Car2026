@@ -8,14 +8,16 @@
 
 class fp_motor {
 public:
-  fp_motor(const char* pwm_device, const char* dir_device) :
+  fp_motor(const char* pwm_device, const char* dir_device, bool dir_inverted) :
     pwm_(pwm_device),
-    dir_(dir_device, O_RDWR)
+    dir_(dir_device, O_RDWR),
+    dir_inverted_(dir_inverted)
   {}
 
   pwm_info pwm_info_{};
   zf_driver_pwm pwm_;
   zf_driver_gpio dir_;
+  bool dir_inverted_;
 
   void init();
   void deinit();
@@ -35,7 +37,8 @@ void fp_motor::deinit() {
 }
 
 void fp_motor::set_duty(int16 duty) {
-  dir_.set_level(duty >= 0);
+  uint8 original_level = duty >= 0;
+  dir_.set_level(original_level != dir_inverted_);
   pwm_.set_duty(std::abs(duty));
 }
 
@@ -48,7 +51,8 @@ void fp_motor::set_duty_cycle(float duty_cycle) {
 int16 fp_motor::get_duty() {
   pwm_.get_dev_info(&pwm_info_);
   uint16 duty = static_cast<uint16>(pwm_info_.duty);
-  return dir_.get_level() ? + duty : - duty;
+  uint8 original_level = dir_.get_level();
+  return original_level != dir_inverted_ ? + duty : - duty;
 }
 
 float fp_motor::get_duty_cycle() {
