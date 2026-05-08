@@ -1,7 +1,8 @@
 #pragma once
 #include <zf_common_headfile.hpp>
-#include "task.hpp"
+
 #include "motor.hpp"
+#include "task.hpp"
 
 constexpr uint32 TIMER_INTERVAL = 10;
 constexpr useconds_t DUTY_LOOP_INTERVAL = 50;
@@ -18,8 +19,8 @@ public:
 
 private:
   zf_driver_pit timer{};
-  FpMotor motor_left = FpMotor(ZF_PWM_MOTOR_2, ZF_GPIO_MOTOR_2);
-  FpMotor motor_right = FpMotor(ZF_PWM_MOTOR_1, ZF_GPIO_MOTOR_1);
+  Motor motor_left = Motor(ZF_PWM_MOTOR_2, ZF_GPIO_MOTOR_2);
+  Motor motor_right = Motor(ZF_PWM_MOTOR_1, ZF_GPIO_MOTOR_1);
 
   float duty_cycle = 0.0f;
   float duty_cycle_delta = DUTY_CYCLE_STEP;

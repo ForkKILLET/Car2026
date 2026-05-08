@@ -1,15 +1,14 @@
 #pragma once
-#include "zf_driver_pwm.hpp"
-#include "zf_driver_gpio.hpp"
-#include "zf_common_typedef.hpp"
-
 #include <algorithm>
 #include <cmath>
 
-class FpMotor {
+#include "zf_common_typedef.hpp"
+#include "zf_driver_gpio.hpp"
+#include "zf_driver_pwm.hpp"
+
+class Motor {
 public:
-  FpMotor(const char *pwm_device, const char *dir_device) :
-      pwm_(pwm_device), dir_(dir_device, O_RDWR),
+  Motor(const char *pwm_device, const char *dir_device) : pwm_(pwm_device), dir_(dir_device, O_RDWR)
   {
   }
 
@@ -27,37 +26,37 @@ public:
   float get_duty_cycle();
 };
 
-void FpMotor::init()
+void Motor::init()
 {
   pwm_.get_dev_info(&pwm_info_);
 }
 
-void FpMotor::deinit()
+void Motor::deinit()
 {
   pwm_.set_duty(0);
 }
 
-void FpMotor::set_duty(int16 duty)
+void Motor::set_duty(int16 duty)
 {
   dir_.set_level(duty >= 0);
   pwm_.set_duty(std::abs(duty));
 }
 
-void FpMotor::set_duty_cycle(float duty_cycle)
+void Motor::set_duty_cycle(float duty_cycle)
 {
   duty_cycle = std::clamp(duty_cycle, -1.0f, +1.0f);
   int16 duty = static_cast<int16>(pwm_info_.duty_max * duty_cycle);
   set_duty(duty);
 }
 
-int16 FpMotor::get_duty()
+int16 Motor::get_duty()
 {
   pwm_.get_dev_info(&pwm_info_);
   uint16 duty = static_cast<uint16>(pwm_info_.duty);
   return dir_.get_level() ? +duty : -duty;
 }
 
-float FpMotor::get_duty_cycle()
+float Motor::get_duty_cycle()
 {
   int16 duty = get_duty();
   return static_cast<float>(duty) / static_cast<float>(pwm_info_.duty_max);

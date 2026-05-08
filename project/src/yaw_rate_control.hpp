@@ -1,8 +1,9 @@
 #pragma once
 
+#include "zf_common_typedef.hpp"
+
 #include "control_params.hpp"
 #include "pid.hpp"
-#include "zf_common_typedef.hpp"
 
 class YawRateControl {
 public:
@@ -26,7 +27,7 @@ public:
     yaw_rate_current = 0.0f;
     turn = 0.0f;
 
-    pid.clean();
+    pid.clear();
   }
 
   // 更新

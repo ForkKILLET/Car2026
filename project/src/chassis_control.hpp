@@ -101,11 +101,11 @@ public:
   }
 
 private:
-  FpMotor motor_l;
-  FpMotor motor_r;
+  Motor motor_l;
+  Motor motor_r;
 
-  MotorSpeedControl motor_l_ctrl{};
-  MotorSpeedControl motor_r_ctrl{};
+  MotorSpeedCtrl motor_l_ctrl{};
+  MotorSpeedCtrl motor_r_ctrl{};
 };
 
 static ChassisControl chassis{

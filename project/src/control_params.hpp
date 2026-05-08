@@ -16,6 +16,7 @@ struct MotorSpeedPidParams {
   float kd = 1.0f;
   float error_limit = 1000.0f;
   int16 pwm_limit = 5000;
+  int16 pwm_deadzone = 700;
 };
 
 struct SteeringParams {
