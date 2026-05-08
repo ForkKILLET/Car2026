@@ -1,157 +1,135 @@
 #pragma once
 
+#include "control_params.hpp"
 #include "zf_common_typedef.hpp"
 #include "zf_device_imu.hpp"
 #include <unistd.h>
 #include <cmath>
 
-struct gyro_interface
-{
-  zf_device_imu imu;
-  imu_device_type_enum imu_type;
-
-  int16 raw_z;
-  float bias_z;
-  float raw_z_corr;
-
-  float yaw_rate_dps;
-  float yaw_rate;
-
-  float gyro_scale;
-
-  uint8 valid;
-  uint8 bias_ready;
-
-  gyro_interface()
+class GyroInterface {
+public:
+  uint8 init(const GyroParams &params)
   {
-    imu_type = DEV_NO_FIND;
+    imu_type = imu.init();
 
     raw_z = 0;
     bias_z = 0.0f;
     raw_z_corr = 0.0f;
-
     yaw_rate_dps = 0.0f;
     yaw_rate = 0.0f;
+    bias_ready = false;
 
-    gyro_scale = 16.4f;
+    if (imu_type == DEV_NO_FIND) {
+      valid = false;
+      return 0;
+    }
 
-    valid = 0;
-    bias_ready = 0;
-  }
-};
-
-static inline uint8 gyro_interface_init(gyro_interface &gyro)
-{
-  gyro.imu_type = gyro.imu.init();
-
-  gyro.raw_z = 0;
-  gyro.bias_z = 0.0f;
-  gyro.raw_z_corr = 0.0f;
-  gyro.yaw_rate_dps = 0.0f;
-  gyro.yaw_rate = 0.0f;
-  gyro.bias_ready = 0;
-
-  if (gyro.imu_type == DEV_NO_FIND)
-  {
-    gyro.valid = 0;
-    return 0;
+    set_scale(params.gyro_scale);
+    valid = true;
+    return 1;
   }
 
-  gyro.valid = 1;
-  return 1;
-}
-
-static inline void gyro_interface_set_scale(gyro_interface &gyro, float gyro_scale)
-{
-  if (gyro_scale > 0.0f)
+  void set_scale(float gyro_scale)
   {
-    gyro.gyro_scale = gyro_scale;
-  }
-}
-
-static inline int16 gyro_interface_read_raw_z(gyro_interface &gyro)
-{
-  if (gyro.valid == 0)
-  {
-    return 0;
-  }
-
-  return gyro.imu.get_gyro_z();
-}
-
-static inline uint8 gyro_interface_calibrate_bias(gyro_interface &gyro,
-                                                  int sample_count,
-                                                  int sample_delay_ms)
-{
-  int i;
-  long sum = 0;
-
-  if (gyro.valid == 0)
-  {
-    return 0;
-  }
-
-  if (sample_count <= 0)
-  {
-    return 0;
-  }
-
-  for (i = 0; i < sample_count; i++)
-  {
-    sum += gyro_interface_read_raw_z(gyro);
-
-    if (sample_delay_ms > 0)
-    {
-      usleep(sample_delay_ms * 1000);
+    if (gyro_scale > 0.0f) {
+      this->gyro_scale = gyro_scale;
     }
   }
 
-  gyro.bias_z = (float)sum / (float)sample_count;
-  gyro.bias_ready = 1;
-
-  return 1;
-}
-
-static inline void gyro_interface_update(gyro_interface &gyro)
-{
-  if (gyro.valid == 0)
+  int16 read_raw_z()
   {
-    gyro.raw_z = 0;
-    gyro.raw_z_corr = 0.0f;
-    gyro.yaw_rate_dps = 0.0f;
-    gyro.yaw_rate = 0.0f;
-    return;
+    if (! valid) {
+      return 0;
+    }
+
+    return imu.get_gyro_z();
   }
 
-  gyro.raw_z = gyro_interface_read_raw_z(gyro);
-  gyro.raw_z_corr = (float)gyro.raw_z - gyro.bias_z;
-
-  if (gyro.gyro_scale > 0.0f)
+  uint8 calibrate_bias(int sample_count, int sample_delay_ms)
   {
-    gyro.yaw_rate_dps = gyro.raw_z_corr / gyro.gyro_scale;
+    long sum = 0;
+
+    if (! valid) {
+      return 0;
+    }
+
+    if (sample_count <= 0) {
+      return 0;
+    }
+
+    for (int i = 0; i < sample_count; i++) {
+      sum += read_raw_z();
+
+      if (sample_delay_ms > 0) {
+        usleep(sample_delay_ms * 1000);
+      }
+    }
+
+    bias_z = static_cast<float>(sum) / static_cast<float>(sample_count);
+    bias_ready = true;
+
+    return 1;
   }
-  else
+
+  void update()
   {
-    gyro.yaw_rate_dps = 0.0f;
+    if (! valid) {
+      raw_z = 0;
+      raw_z_corr = 0.0f;
+      yaw_rate_dps = 0.0f;
+      yaw_rate = 0.0f;
+      return;
+    }
+
+    raw_z = read_raw_z();
+    raw_z_corr = static_cast<float>(raw_z) - bias_z;
+
+    if (gyro_scale > 0.0f) {
+      yaw_rate_dps = raw_z_corr / gyro_scale;
+    }
+    else {
+      yaw_rate_dps = 0.0f;
+    }
+
+    yaw_rate = yaw_rate_dps * 3.1415926f / 180.0f;
   }
 
-  gyro.yaw_rate = gyro.yaw_rate_dps * 3.1415926f / 180.0f;
-}
+  void clear()
+  {
+    raw_z = 0;
+    raw_z_corr = 0.0f;
+    yaw_rate_dps = 0.0f;
+    yaw_rate = 0.0f;
+  }
 
-static inline void gyro_interface_clear(gyro_interface &gyro)
-{
-  gyro.raw_z = 0;
-  gyro.raw_z_corr = 0.0f;
-  gyro.yaw_rate_dps = 0.0f;
-  gyro.yaw_rate = 0.0f;
-}
+  float get_yaw_rate() const
+  {
+    return yaw_rate;
+  }
 
-static inline float gyro_interface_get_yaw_rate(const gyro_interface &gyro)
-{
-  return gyro.yaw_rate;
-}
+  float get_yaw_rate_dps() const
+  {
+    return yaw_rate_dps;
+  }
 
-static inline float gyro_interface_get_yaw_rate_dps(const gyro_interface &gyro)
-{
-  return gyro.yaw_rate_dps;
-}
+  bool is_valid() const
+  {
+    return valid;
+  }
+
+private:
+  zf_device_imu imu{};
+  imu_device_type_enum imu_type = DEV_NO_FIND;
+
+  int16 raw_z = 0;
+  float bias_z = 0.0f;
+  float raw_z_corr = 0.0f;
+
+  float yaw_rate_dps = 0.0f;
+  float yaw_rate = 0.0f;
+
+  float gyro_scale = 16.4f;
+
+  bool valid = false;
+  bool bias_ready = false;
+};

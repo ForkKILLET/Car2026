@@ -1,0 +1,36 @@
+---
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+BreakBeforeBraces: Stroustrup
+AllowShortFunctionsOnASingleLine: Empty
+SplitEmptyRecord: false
+SplitEmptyFunction: false
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortBlocksOnASingleLine: Empty
+AccessModifierOffset: -2
+AlignAfterOpenBracket: Align
+BinPackParameters: false
+BinPackArguments: false
+ConstructorInitializerIndentWidth: 4
+BreakConstructorInitializers: AfterColon
+PointerAlignment: Right
+ReferenceAlignment: Right
+DerivePointerAlignment: false
+SpaceBeforeParens: ControlStatements
+ColumnLimit: 100
+SortIncludes: true
+IncludeBlocks: Regroup
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: true
+IncludeCategories:
+  - Regex: '^<.*>'
+    SortPriority: 1
+  - Regex: '^<zf_.*>'
+    SortPriority: 2
+  - Regex: '^"zf_.*"'
+    SortPriority: 3
+  - Regex: '.*'
+    SortPriority: 4
+...

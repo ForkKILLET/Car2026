@@ -1,40 +1,45 @@
+#pragma once
+
 #include <zf_common_headfile.hpp>
+
 #include "utils.hpp"
 
-class fp_client {
+class Client {
 public:
-  virtual void send(const uint8* data, size_t size) = 0;
-  virtual void recv(uint8* buffer, size_t size) = 0;
+  virtual void send(const uint8 *data, size_t size) = 0;
+  virtual void recv(uint8 *buffer, size_t size) = 0;
 
-  virtual ~fp_client() = default;
+  virtual ~Client() = default;
 };
 
-class fp_tcp_client : public fp_client {
+class TcpClient : public Client {
 public:
-  fp_tcp_client(const char* addr, uint16_t port) :
-    addr_(addr), port_(port)
-  {}
+  TcpClient() = delete;
+  TcpClient(const char *addr, uint16_t port) : addr_(addr), port_(port) {}
 
   int8 init();
 
-  void send(const uint8* data, size_t size) override;
-  void recv(uint8* buffer, size_t size) override;
+  void send(const uint8 *data, size_t size) override;
+  void recv(uint8 *buffer, size_t size) override;
 
 private:
-  const char* addr_;
+  const char *addr_;
   uint16_t port_;
 
-  zf_driver_tcp_client tcp_client_;
+  std::unique_ptr<zf_driver_tcp_client> tcp_client_{std::make_unique<zf_driver_tcp_client>()};
 };
 
-int8 fp_tcp_client::init() {
-  return tcp_client_.init(addr_, port_);
+int8 TcpClient::init()
+{
+  return tcp_client_->init(addr_, port_);
 }
 
-void fp_tcp_client::send(const uint8* data, size_t size) {
-  tcp_client_.send_data(data, size);
+void TcpClient::send(const uint8 *data, size_t size)
+{
+  tcp_client_->send_data(data, size);
 }
 
-void fp_tcp_client::recv(uint8* buffer, size_t size) {
-  tcp_client_.read_data(buffer, size);
+void TcpClient::recv(uint8 *buffer, size_t size)
+{
+  tcp_client_->read_data(buffer, size);
 }

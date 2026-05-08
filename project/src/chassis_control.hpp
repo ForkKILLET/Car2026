@@ -1,101 +1,112 @@
 #pragma once
 
-#include "encoder_speed_system.hpp"
+#include "control_params.hpp"
+#include "encoder_system.hpp"
 #include "motor.hpp"
 #include "motor_speed_control.hpp"
-#include "control_params.hpp"
 
-static fp_motor motor_l("/dev/zf_pwm_motor_2", "/dev/zf_gpio_motor_2", false);
-static fp_motor motor_r("/dev/zf_pwm_motor_1", "/dev/zf_gpio_motor_1", false);
+class ChassisControl {
+public:
+  ChassisControl(const char *motor_l_pwm,
+                 const char *motor_l_gpio,
+                 const char *motor_r_pwm,
+                 const char *motor_r_gpio) :
+      motor_l(motor_l_pwm, motor_l_gpio), motor_r(motor_r_pwm, motor_r_gpio)
+  {
+  }
 
-static motor_speed_control motor_l_ctrl;
-static motor_speed_control motor_r_ctrl;
+  // 初始化
+  void init(const ControlParams &params)
+  {
+    encoder_sys.init(params.encoder);
 
-// 初始化
-static inline void chassis_control_init(void)
-{
-  encoder_speed_init(params.encoder.meter_per_count_l,
-                     params.encoder.meter_per_count_r,
-                     params.encoder.wheel_base,
-                     params.encoder.alpha,
-                     params.encoder.timer_ms);
+    // 电机初始化
+    motor_l.init();
+    motor_r.init();
 
-  // 电机初始化
-  motor_l.init();
-  motor_r.init();
+    motor_l_ctrl.init(params.motor_l_pid);
 
-  motor_speed_init(motor_l_ctrl,
-                   params.motor_l_pid.kp,
-                   params.motor_l_pid.ki,
-                   params.motor_l_pid.kd,
-                   params.motor_l_pid.error_limit,
-                   params.motor_l_pid.pwm_limit);
+    motor_r_ctrl.init(params.motor_r_pid);
 
-  motor_speed_init(motor_r_ctrl,
-                   params.motor_r_pid.kp,
-                   params.motor_r_pid.ki,
-                   params.motor_r_pid.kd,
-                   params.motor_r_pid.error_limit,
-                   params.motor_r_pid.pwm_limit);
+    // 初始目标速度设为 0
+    motor_l_ctrl.set_target(0.0f);
+    motor_r_ctrl.set_target(0.0f);
+  }
 
-  // 初始目标速度设为 0
-  motor_speed_set_target(motor_l_ctrl, 0.0f);
-  motor_speed_set_target(motor_r_ctrl, 0.0f);
-}
+  // 设置左右轮目标速度
+  void set_target_speed(float target_l, float target_r)
+  {
+    motor_l_ctrl.set_target(target_l);
+    motor_r_ctrl.set_target(target_r);
+  }
 
-// 设置左右轮目标速度
-static inline void chassis_set_target_speed(float target_l, float target_r)
-{
-  motor_speed_set_target(motor_l_ctrl, target_l);
-  motor_speed_set_target(motor_r_ctrl, target_r);
-}
+  // 获取左右轮当前速度
+  float get_speed_l() const
+  {
+    return encoder_sys.get_speed_l();
+  }
 
-// 获取左右轮当前速度
-static inline float chassis_get_speed_l(void)
-{
-  return encoder_sys.speed_l;
-}
+  float get_speed_r() const
+  {
+    return encoder_sys.get_speed_r();
+  }
 
-static inline float chassis_get_speed_r(void)
-{
-  return encoder_sys.speed_r;
-}
+  // 获取车体线速度与角速度
+  float get_speed_car() const
+  {
+    return encoder_sys.get_speed_car();
+  }
 
-// 获取车体线速度与角速度
-static inline float chassis_get_speed_car(void)
-{
-  return encoder_sys.speed_car;
-}
+  float get_yaw_rate() const
+  {
+    return encoder_sys.get_yaw_rate();
+  }
 
-static inline float chassis_get_yaw_rate(void)
-{
-  return encoder_sys.yaw_rate;
-}
+  // 闭环更新
+  void loop()
+  {
+    // 左轮
+    motor_l_ctrl.set_current(encoder_sys.get_speed_l());
+    motor_l_ctrl.update(motor_l);
 
-// 闭环更新
-static inline void chassis_control_loop(void)
-{
-  // 左轮
-  motor_speed_set_current(motor_l_ctrl, encoder_sys.speed_l);
-  motor_speed_update(motor_l_ctrl, motor_l);
+    // 右轮
+    motor_r_ctrl.set_current(encoder_sys.get_speed_r());
+    motor_r_ctrl.update(motor_r);
+  }
 
-  // 右轮
-  motor_speed_set_current(motor_r_ctrl, encoder_sys.speed_r);
-  motor_speed_update(motor_r_ctrl, motor_r);
-}
+  // 停车
+  void stop()
+  {
+    motor_l_ctrl.stop(motor_l);
+    motor_r_ctrl.stop(motor_r);
+  }
 
-// 停车
-static inline void chassis_stop(void)
-{
-  motor_speed_stop(motor_l_ctrl, motor_l);
-  motor_speed_stop(motor_r_ctrl, motor_r);
-}
+  // 清零
+  void clear()
+  {
+    encoder_sys.clear();
 
-// 清零
-static inline void chassis_clear(void)
-{
-  encoder_speed_clear(encoder_sys);
+    motor_l_ctrl.stop(motor_l);
+    motor_r_ctrl.stop(motor_r);
+  }
 
-  motor_speed_stop(motor_l_ctrl, motor_l);
-  motor_speed_stop(motor_r_ctrl, motor_r);
-}
+  int16 get_pwm_l() const
+  {
+    return motor_l_ctrl.get_pwm_out();
+  }
+
+  int16 get_pwm_r() const
+  {
+    return motor_r_ctrl.get_pwm_out();
+  }
+
+private:
+  FpMotor motor_l;
+  FpMotor motor_r;
+
+  MotorSpeedControl motor_l_ctrl{};
+  MotorSpeedControl motor_r_ctrl{};
+};
+
+static ChassisControl chassis{
+    "/dev/zf_pwm_motor_2", "/dev/zf_gpio_motor_2", "/dev/zf_pwm_motor_1", "/dev/zf_gpio_motor_1"};

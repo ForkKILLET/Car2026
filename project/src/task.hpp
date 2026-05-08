@@ -1,20 +1,30 @@
 #pragma once
 #include <zf_common_headfile.hpp>
 
-class fp_task {
+class Task {
 public:
-  virtual void init() {}
-  virtual void deinit() {}
-  virtual void work() {}
+  virtual void init()
+  {
+  }
+  virtual void deinit()
+  {
+  }
+  virtual void work()
+  {
+  }
 
   bool initialized_{false};
 
-  ~fp_task() {
-    if (initialized_) deinit();
+  ~Task()
+  {
+    if (initialized_)
+      deinit();
   }
 
-  void run() {
-    if (initialized_) throw std::runtime_error("Task already initialized");
+  void run()
+  {
+    if (initialized_)
+      throw std::runtime_error("Task already initialized");
     initialized_ = true;
 
     init();

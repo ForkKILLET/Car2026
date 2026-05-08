@@ -101,7 +101,7 @@ include_directories(./src)
 # Sources
 aux_source_directory(./model SOURCES)
 aux_source_directory(./src SOURCES)
-aux_source_directory(./src/tests SOURCES)
+aux_source_directory(./src/debug SOURCES)
 
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -109,8 +109,8 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 # Linking
 target_link_libraries(
   ${PROJECT_NAME}
-  # m
-  # pthread
-  # ${OpenCV_LIBS}
+  m
+  pthread
+  ${OpenCV_LIBS}
   # tflm
 )

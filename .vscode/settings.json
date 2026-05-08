@@ -5,5 +5,10 @@
     "${workspaceFolder}/project/build/compile_commands.json"
   ],
   "C_Cpp.intelliSenseEngine": "default",
-  "C_Cpp.errorSquiggles": "disabled"
+  "C_Cpp.clang_format_style": "file",
+  "C_Cpp.clang_format_fallbackStyle": "LLVM",
+  "[cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.formatOnSave": true
+  },
 }

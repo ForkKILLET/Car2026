@@ -2,146 +2,149 @@
 #include <cmath>
 #include "zf_common_typedef.hpp"
 
-enum pid_type
-{
+enum pid_type {
   PID_POS, // 位置式PID
   PID_INC, // 增量式PID
 };
 
-struct pid_ctrl
-{
-  pid_type type; // PID类型
-
-  float kp;
-  float ki;
-  float kd;
-
-  float error_previous; // 上上次误差
-  float error_last;     // 上次误差
-  float error;          // 当前误差
-
-  float error_sum;
-  float error_limit;       // 积分限幅
-  uint32 error_zero_count; // 误差连续为0的计数
-
-  float output_pos;   // 位置式pid输出
-  float output_inc;   // 增量
-  float output_limit; // 输出限幅
-};
-
-void pid_set(pid_ctrl &pid, pid_type type, float kp, float ki, float kd)
-{
-  pid.type = type;
-
-  pid.kp = kp;
-  pid.ki = ki;
-  pid.kd = kd;
-
-  pid.error_previous = 0.0f;
-  pid.error_last = 0.0f;
-  pid.error = 0.0f;
-
-  pid.error_sum = 0.0f;
-  pid.error_limit = 1000.0f;
-  pid.error_zero_count = 0;
-
-  pid.output_inc = 0.0f;
-  pid.output_pos = 0.0f;
-  pid.output_limit = 1000.0f;
-}
-
-void pid_limit(pid_ctrl &pid, float error_limit, float output_limit)
-{
-  pid.error_limit = error_limit;
-  pid.output_limit = output_limit;
-}
-
-void pid_position(pid_ctrl &pid, float target, float current)
-{
-  float delta_error;
-
-  pid.error = target - current;
-
-  float deadband = 0.5f; // 死区处理，阈值可调
-  if (fabs(pid.error) < deadband)
-    pid.error = 0.0f;
-
-  pid.error_sum += pid.error;
-
-  // 若误差长时间为0，则清空积分项
-  if (pid.error == 0.0f)
+class PidCtrl {
+public:
+  void set(pid_type type, float kp, float ki, float kd)
   {
-    pid.error_zero_count++;
-    if (pid.error_zero_count > 50)
-    {
-      pid.error_sum = 0.0f;
-      pid.error_zero_count = 0;
+    this->type = type;
+
+    this->kp = kp;
+    this->ki = ki;
+    this->kd = kd;
+
+    error_previous = 0.0f;
+    error_last = 0.0f;
+    error = 0.0f;
+
+    error_sum = 0.0f;
+    error_limit = 1000.0f;
+    error_zero_count = 0;
+
+    output_inc = 0.0f;
+    output_pos = 0.0f;
+    output_limit = 1000.0f;
+  }
+
+  void set_limit(float error_limit, float output_limit)
+  {
+    this->error_limit = error_limit;
+    this->output_limit = output_limit;
+  }
+
+  void position(float target, float current)
+  {
+    float delta_error;
+
+    error = target - current;
+
+    float deadband = 0.5f; // 死区处理，阈值可调
+    if (std::fabs(error) < deadband) {
+      error = 0.0f;
     }
+
+    error_sum += error;
+
+    // 若误差长时间为0，则清空积分项
+    if (error == 0.0f) {
+      error_zero_count++;
+      if (error_zero_count > 50) {
+        error_sum = 0.0f;
+        error_zero_count = 0;
+      }
+    }
+    else {
+      error_zero_count = 0;
+    }
+
+    // 积分限幅
+    if (error_sum > error_limit) {
+      error_sum = error_limit;
+    }
+    else if (error_sum < -error_limit) {
+      error_sum = -error_limit;
+    }
+
+    // 微分项
+    delta_error = error - error_last;
+
+    output_pos = kp * error + ki * error_sum + kd * delta_error;
+
+    // 输出限幅
+    if (output_pos > output_limit) {
+      output_pos = output_limit;
+    }
+    else if (output_pos < -output_limit) {
+      output_pos = -output_limit;
+    }
+
+    error_last = error;
   }
-  else
+
+  void increment(float target, float current)
   {
-    pid.error_zero_count = 0;
+    float delta_output;
+
+    error = target - current;
+
+    delta_output =
+        kp * (error - error_last) + ki * error + kd * (error - 2.0f * error_last + error_previous);
+
+    output_inc += delta_output;
+
+    // 输出限幅
+    if (output_inc > output_limit) {
+      output_inc = output_limit;
+    }
+    else if (output_inc < -output_limit) {
+      output_inc = -output_limit;
+    }
+
+    error_previous = error_last;
+    error_last = error;
   }
 
-  // 积分限幅
-  if (pid.error_sum > pid.error_limit)
+  void clean()
   {
-    pid.error_sum = pid.error_limit;
+    error_previous = 0.0f;
+    error_last = 0.0f;
+    error = 0.0f;
+    error_sum = 0.0f;
+    error_zero_count = 0;
+    output_inc = 0.0f;
+    output_pos = 0.0f;
   }
-  else if (pid.error_sum < -pid.error_limit)
+
+  float get_output_pos() const
   {
-    pid.error_sum = -pid.error_limit;
+    return output_pos;
   }
 
-  // 微分项
-  delta_error = pid.error - pid.error_last;
-
-  pid.output_pos = pid.kp * pid.error + pid.ki * pid.error_sum + pid.kd * delta_error;
-
-  // 输出限幅
-  if (pid.output_pos > pid.output_limit)
+  float get_output_inc() const
   {
-    pid.output_pos = pid.output_limit;
-  }
-  else if (pid.output_pos < -pid.output_limit)
-  {
-    pid.output_pos = -pid.output_limit;
+    return output_inc;
   }
 
-  pid.error_last = pid.error;
-}
+private:
+  pid_type type = PID_POS; // PID类型
 
-void pid_increment(pid_ctrl &pid, float target, float current)
-{
-  float delta_output;
+  float kp = 0.0f;
+  float ki = 0.0f;
+  float kd = 0.0f;
 
-  pid.error = target - current;
+  float error_previous = 0.0f; // 上上次误差
+  float error_last = 0.0f;     // 上次误差
+  float error = 0.0f;          // 当前误差
 
-  delta_output = pid.kp * (pid.error - pid.error_last) + pid.ki * pid.error + pid.kd * (pid.error - 2.0f * pid.error_last + pid.error_previous);
+  float error_sum = 0.0f;
+  float error_limit = 1000.0f; // 积分限幅
+  uint32 error_zero_count = 0; // 误差连续为0的计数
 
-  pid.output_inc += delta_output;
-
-  // 输出限幅
-  if (pid.output_inc > pid.output_limit)
-  {
-    pid.output_inc = pid.output_limit;
-  }
-  else if (pid.output_inc < -pid.output_limit)
-  {
-    pid.output_inc = -pid.output_limit;
-  }
-
-  pid.error_previous = pid.error_last;
-  pid.error_last = pid.error;
-}
-
-void pid_clean(pid_ctrl &pid)
-{
-  pid.error_previous = 0.0f;
-  pid.error_last = 0.0f;
-  pid.error = 0.0f;
-  pid.error_sum = 0.0f;
-  pid.error_zero_count = 0;
-  pid.output_inc = 0.0f;
-  pid.output_pos = 0.0f;
-}
+  float output_pos = 0.0f;      // 位置式pid输出
+  float output_inc = 0.0f;      // 增量
+  float output_limit = 1000.0f; // 输出限幅
+};
