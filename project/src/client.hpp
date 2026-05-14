@@ -7,7 +7,8 @@
 class Client {
 public:
   virtual void send(const uint8 *data, size_t size) = 0;
-  virtual void recv(uint8 *buffer, size_t size) = 0;
+  // try to recv up to `size` bytes. Returns number of bytes read, 0 for no data, -1 for error.
+  virtual int recv(uint8 *buffer, size_t size) = 0;
 
   virtual ~Client() = default;
 };
@@ -20,7 +21,7 @@ public:
   int8 init();
 
   void send(const uint8 *data, size_t size) override;
-  void recv(uint8 *buffer, size_t size) override;
+  int recv(uint8 *buffer, size_t size) override;
 
 private:
   const char *addr_;
@@ -39,7 +40,7 @@ void TcpClient::send(const uint8 *data, size_t size)
   tcp_client_->send_data(data, size);
 }
 
-void TcpClient::recv(uint8 *buffer, size_t size)
+int TcpClient::recv(uint8 *buffer, size_t size)
 {
-  tcp_client_->read_data(buffer, size);
+  return (int) tcp_client_->read_data(buffer, (uint32) size);
 }

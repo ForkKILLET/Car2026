@@ -9,19 +9,26 @@
 // 单个电机速度闭环控制
 // 目标速度 - 当前速度 -> 增量 pid -> pwm 输出
 
+enum class MotorSide {
+  Left,
+  Right,
+};
+
 class MotorSpeedCtrl {
 public:
   // 初始化
-  void init(const MotorSpeedPidParams &params)
+  explicit MotorSpeedCtrl(MotorSide side = MotorSide::Left)
   {
-    pid.set(PID_INC, params.kp, params.ki, params.kd);
-    pid.set_limit(params.error_limit, static_cast<float>(params.pwm_limit));
+    const auto &p = (side == MotorSide::Left) ? g_params.motor_l_pid : g_params.motor_r_pid;
+
+    pid.set(PidType::Inc, p.kp, p.ki, p.kd, p.output_ratio);
+    pid.set_limit(p.error_limit, static_cast<float>(p.pwm_limit));
 
     target_speed = 0.0f;
     current_speed = 0.0f;
     pwm_out = 0;
-    pwm_limit = params.pwm_limit;
-    pwm_deadzone = params.pwm_deadzone;
+    pwm_limit = p.pwm_limit;
+    pwm_deadzone = p.pwm_deadzone;
   }
 
   // 设置目标速度
@@ -47,8 +54,10 @@ public:
     pwm_out = limit(pwm_out, pwm_limit);
 
     // 死区
-    if (std::abs(pwm_out) < pwm_deadzone)
-      pwm_out = 0;
+    if (pwm_out < 0 && pwm_out > -pwm_deadzone)
+      pwm_out = -pwm_deadzone;
+    else if (pwm_out > 0 && pwm_out < pwm_deadzone)
+      pwm_out = pwm_deadzone;
 
     // 输出到电机
     motor.set_duty(pwm_out);
@@ -84,8 +93,8 @@ private:
   int16 pwm_out = 0;
 
   // pwm 限幅
-  int16 pwm_limit = 1000;
+  int16 pwm_limit;
 
   // pwm 死区
-  int16 pwm_deadzone = 700;
+  int16 pwm_deadzone;
 };

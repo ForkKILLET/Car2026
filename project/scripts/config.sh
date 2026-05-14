@@ -4,6 +4,7 @@
 
 ROOT_DIR=$(dirname $(dirname $(realpath $0)))
 BUILD_DIR=${ROOT_DIR}/build
+DEV_BUILD_DIR=${ROOT_DIR}/build_dev
 SRC_DIR=${ROOT_DIR}/src
 
 SSH_HOST=ls2k-local

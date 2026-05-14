@@ -1,15 +1,19 @@
 #pragma once
 
-#include "control_params.hpp"
+#include <cmath>
+#include <unistd.h>
+
 #include "zf_common_typedef.hpp"
 #include "zf_device_imu.hpp"
-#include <unistd.h>
-#include <cmath>
+
+#include "control_params.hpp"
 
 class GyroInterface {
 public:
-  uint8 init(const GyroParams &params)
+  GyroInterface()
   {
+    auto &p = g_params.gyro;
+
     imu_type = imu.init();
 
     raw_z = 0;
@@ -21,12 +25,11 @@ public:
 
     if (imu_type == DEV_NO_FIND) {
       valid = false;
-      return 0;
+      return;
     }
 
-    set_scale(params.gyro_scale);
+    set_scale(p.gyro_scale);
     valid = true;
-    return 1;
   }
 
   void set_scale(float gyro_scale)

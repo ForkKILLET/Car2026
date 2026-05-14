@@ -8,16 +8,18 @@
 class YawRateControl {
 public:
   // 初始化
-  void init(const YawRatePidParams &params)
+  YawRateControl()
   {
-    pid.set(PID_POS, params.kp, params.ki, params.kd);
-    pid.set_limit(params.error_limit, params.turn_limit);
+    auto &p = g_params.yaw_rate;
+
+    pid.set(PidType::Pos, p.kp, p.ki, p.kd);
+    pid.set_limit(p.error_limit, p.turn_limit);
 
     yaw_rate_target = 0.0f;
     yaw_rate_current = 0.0f;
 
     turn = 0.0f;
-    turn_limit = params.turn_limit;
+    turn_limit = p.turn_limit;
   }
 
   // 清零

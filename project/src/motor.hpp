@@ -15,7 +15,6 @@ public:
   pwm_info pwm_info_{};
   zf_driver_pwm pwm_;
   zf_driver_gpio dir_;
-  bool dir_inverted_;
 
   void init();
   void deinit();

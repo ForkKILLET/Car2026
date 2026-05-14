@@ -1,21 +1,23 @@
 #pragma once
 #include <cmath>
+
 #include "zf_common_typedef.hpp"
 
-enum pid_type {
-  PID_POS, // 位置式PID
-  PID_INC, // 增量式PID
+enum class PidType {
+  Pos, // 位置式PID
+  Inc, // 增量式PID
 };
 
 class PidCtrl {
 public:
-  void set(pid_type type, float kp, float ki, float kd)
+  void set(PidType type, float kp, float ki, float kd, float output_ratio = 1.0f)
   {
     this->type = type;
 
     this->kp = kp;
     this->ki = ki;
     this->kd = kd;
+    this->output_ratio = output_ratio;
 
     error_previous = 0.0f;
     error_last = 0.0f;
@@ -72,15 +74,10 @@ public:
     // 微分项
     delta_error = error - error_last;
 
-    output_pos = kp * error + ki * error_sum + kd * delta_error;
+    output_pos = output_ratio * (kp * error + ki * error_sum + kd * delta_error);
 
     // 输出限幅
-    if (output_pos > output_limit) {
-      output_pos = output_limit;
-    }
-    else if (output_pos < -output_limit) {
-      output_pos = -output_limit;
-    }
+    output_pos = limit(output_pos, output_limit);
 
     error_last = error;
   }
@@ -91,24 +88,19 @@ public:
 
     error = target - current;
 
-    delta_output =
-        kp * (error - error_last) + ki * error + kd * (error - 2.0f * error_last + error_previous);
+    delta_output = output_ratio * (kp * (error - error_last) + ki * error +
+                                   kd * (error - 2.0f * error_last + error_previous));
 
     output_inc += delta_output;
 
     // 输出限幅
-    if (output_inc > output_limit) {
-      output_inc = output_limit;
-    }
-    else if (output_inc < -output_limit) {
-      output_inc = -output_limit;
-    }
+    output_inc = limit(output_inc, output_limit);
 
     error_previous = error_last;
     error_last = error;
   }
 
-  void clean()
+  void clear()
   {
     error_previous = 0.0f;
     error_last = 0.0f;
@@ -130,21 +122,22 @@ public:
   }
 
 private:
-  pid_type type = PID_POS; // PID类型
+  PidType type = PidType::Pos; // PID类型
 
-  float kp = 0.0f;
-  float ki = 0.0f;
-  float kd = 0.0f;
+  float kp;
+  float ki;
+  float kd;
+  float output_ratio; // 输出缩放比例
+  float output_limit; // 输出限幅
 
-  float error_previous = 0.0f; // 上上次误差
-  float error_last = 0.0f;     // 上次误差
-  float error = 0.0f;          // 当前误差
+  float error_previous; // 上上次误差
+  float error_last;     // 上次误差
+  float error;          // 当前误差
 
-  float error_sum = 0.0f;
-  float error_limit = 1000.0f; // 积分限幅
-  uint32 error_zero_count = 0; // 误差连续为0的计数
+  float error_sum;
+  float error_limit;       // 积分限幅
+  uint32 error_zero_count; // 误差连续为0的计数
 
-  float output_pos = 0.0f;      // 位置式pid输出
-  float output_inc = 0.0f;      // 增量
-  float output_limit = 1000.0f; // 输出限幅
+  float output_pos; // 位置式pid输出
+  float output_inc; // 增量
 };

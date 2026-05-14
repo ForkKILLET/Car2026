@@ -1,7 +1,8 @@
 #pragma once
-#include "control_params.hpp"
 #include "zf_common_typedef.hpp"
+
 #include "chassis_control.hpp"
+#include "control_params.hpp"
 
 // 差速解算
 // 基本公式：
@@ -12,14 +13,7 @@
 class DiffDrive {
 public:
   // 初始化
-  void init(const DiffDriveParams &_params)
-  {
-    base_speed = 0.0f;
-    turn = 0.0f;
-
-    target_l = 0.0f;
-    target_r = 0.0f;
-  }
+  DiffDrive() {}
 
   // 设置输入
   void set_input(float base_speed, float turn)

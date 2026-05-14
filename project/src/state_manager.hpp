@@ -1,6 +1,7 @@
 #pragma once
 
 #include "zf_common_typedef.hpp"
+
 #include "control_manager.hpp"
 
 // 状态
@@ -15,8 +16,10 @@ typedef enum ControlState {
 class StateManager {
 public:
   // 初始化
-  void init(const StateMachineParams &params)
+  StateManager()
   {
+    auto &p = g_params.state_machine;
+
     state = STATE_STOP;
     last_state = STATE_STOP;
 
@@ -24,7 +27,7 @@ public:
     error_flag = 0;
 
     lost_line_count = 0;
-    lost_line_limit = params.lost_line_limit;
+    lost_line_limit = p.lost_line_limit;
   }
 
   // 当前状态

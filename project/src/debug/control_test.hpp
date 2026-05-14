@@ -12,27 +12,20 @@
 #include "diff_drive.hpp"
 
 enum class DebugMode {
-  STOP,
-  LEFT_SPEED,
-  RIGHT_SPEED,
-  DUAL_SPEED,
-  DIFF_TEST,
+  Stop,
+  LeftSpeed,
+  RightSpeed,
+  DualSpeed,
+  Diff,
 };
-
-static inline void control_test_control_callback(void);
-static inline void control_test_print_callback(void);
 
 class ControlTest {
 public:
-  void init()
+  ControlTest()
   {
-    car_ctrl.init(params);
-    car_drive.init(params.diff_drive);
+    auto &p = g_params.speed_plan;
 
-    car_ctrl.set_speed_plan(params.speed_plan.base_speed_target,
-                            params.speed_plan.base_speed_min,
-                            params.speed_plan.turn_slow_gain,
-                            params.speed_plan.speed_ramp);
+    ctrl.set_speed_plan(p.base_speed_target, p.base_speed_min, p.turn_slow_gain, p.speed_ramp);
 
     target_l = 0.0f;
     target_r = 0.0f;
@@ -42,12 +35,6 @@ public:
 
     line_error = 0.0f;
     line_valid = false;
-  }
-
-  void start()
-  {
-    control_timer.init_ms(control_period_ms, control_test_control_callback);
-    print_timer.init_ms(print_period_ms, control_test_print_callback);
   }
 
   // 设置模式
@@ -80,7 +67,7 @@ public:
   // 停止
   void stop()
   {
-    mode = DebugMode::STOP;
+    mode = DebugMode::Stop;
 
     target_l = 0.0f;
     target_r = 0.0f;
@@ -91,74 +78,90 @@ public:
     line_error = 0.0f;
     line_valid = false;
 
-    car_ctrl.stop();
+    ctrl.stop();
     chassis.stop();
   }
 
-private:
-  friend void control_test_control_callback(void);
-  friend void control_test_print_callback(void);
+  static ControlTest &instance()
+  {
+    static ControlTest test{};
+    return test;
+  }
 
-  void control_callback()
+  static void timer_callback(void)
+  {
+    auto &test = instance();
+    test.control_loop();
+    test.print_loop();
+  }
+
+  static void setup_timer()
+  {
+    static zf_driver_pit timer{};
+    timer.init_ms(g_params.timer.control_period_ms, timer_callback);
+  }
+
+private:
+  void control_loop()
   {
     switch (mode) {
-    case DebugMode::STOP:
-      car_ctrl.stop();
+    case DebugMode::Stop:
+      ctrl.stop();
       chassis.stop();
       break;
 
-    case DebugMode::LEFT_SPEED:
+    case DebugMode::LeftSpeed:
       chassis.set_target_speed(target_l, 0.0f);
       chassis.loop();
       break;
 
-    case DebugMode::RIGHT_SPEED:
+    case DebugMode::RightSpeed:
       chassis.set_target_speed(0.0f, target_r);
       chassis.loop();
       break;
 
-    case DebugMode::DUAL_SPEED:
+    case DebugMode::DualSpeed:
       chassis.set_target_speed(target_l, target_r);
       chassis.loop();
       break;
 
-    case DebugMode::DIFF_TEST:
-      car_drive.loop(base_speed, turn);
+    case DebugMode::Diff:
+      drive.loop(base_speed, turn);
       chassis.loop();
       break;
 
     default:
-      car_ctrl.stop();
+      ctrl.stop();
       chassis.stop();
       break;
     }
   }
 
-  void print_callback()
+  void print_loop()
   {
     switch (mode) {
-    case DebugMode::STOP: {
+    case DebugMode::Stop: {
       ctrl_debug.print_stop();
       break;
     }
 
-    case DebugMode::LEFT_SPEED: {
+    case DebugMode::LeftSpeed: {
       ctrl_debug.print_left_speed(target_l);
       break;
     }
 
-    case DebugMode::RIGHT_SPEED: {
+    case DebugMode::RightSpeed: {
       ctrl_debug.print_right_speed(target_r);
       break;
     }
 
-    case DebugMode::DUAL_SPEED: {
+    case DebugMode::DualSpeed: {
       ctrl_debug.print_dual_speed(target_l, target_r);
       break;
     }
 
-    case DebugMode::DIFF_TEST: {
-      ctrl_debug.print_diff_test(car_drive, base_speed, turn);
+    case DebugMode::Diff: {
+      ctrl_debug.print_diff_test(drive, base_speed, turn);
       break;
     }
 
@@ -170,10 +173,10 @@ private:
   zf_driver_pit control_timer{};
   zf_driver_pit print_timer{};
 
-  DiffDrive car_drive{};
-  ControlManager car_ctrl{};
+  DiffDrive drive{};
+  CtrlManager &ctrl = CtrlManager::instance();
 
-  DebugMode mode = DebugMode::STOP;
+  DebugMode mode = DebugMode::Stop;
 
   float target_l = 0.0f;
   float target_r = 0.0f;
@@ -187,17 +190,3 @@ private:
   int control_period_ms = 20;
   int print_period_ms = 200;
 };
-
-static ControlTest dbg{};
-
-// 控制定时器回调
-static inline void control_test_control_callback(void)
-{
-  dbg.control_callback();
-}
-
-// 打印定时器回调
-static inline void control_test_print_callback(void)
-{
-  dbg.print_callback();
-}

@@ -1,6 +1,12 @@
-project/build
-project/config.cmake
 .cache
-libraries
+.vscode/c_cpp_properties.json
+_deps
+CMakeFiles
+
+project/build
+project/build_dev
+project/config.cmake
+
+project/lib/zf
 
 NOTE.md

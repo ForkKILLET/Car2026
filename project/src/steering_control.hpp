@@ -1,18 +1,25 @@
 #pragma once
-#include "control_params.hpp"
-#include "zf_common_typedef.hpp"
 #include <algorithm>
 #include <cmath>
+
+#include "zf_common_typedef.hpp"
+
+#include "control_params.hpp"
 
 class SteeringControl {
 public:
   // 初始化
-  void init(const SteeringParams &params)
+  SteeringControl()
   {
-    kp = params.kp;
-    kd = params.kd;
-    turn_limit = params.turn_limit;
-    deadband = params.deadband;
+    auto &p = g_params.steering;
+
+    kp = p.kp;
+    kd = p.kd;
+    turn_ratio = p.turn_ratio;
+    turn_limit = p.turn_limit;
+    deadband = p.deadband;
+
+    clear();
   }
 
   // 清零
@@ -37,10 +44,10 @@ public:
     delta_error = error - error_last;
 
     // PD 输出
-    turn = kp * error + kd * delta_error;
+    turn = turn_ratio * (kp * error + kd * delta_error);
 
     // 输出限幅
-    turn = std::clamp(turn, -turn_limit, turn_limit);
+    turn = limit(turn, turn_limit);
 
     error_last = error;
   }
@@ -57,20 +64,23 @@ public:
   }
 
 private:
-  // pd 参数
-  float kp = 0.0f;
-  float kd = 0.0f;
+  // PD 参数
+  float kp;
+  float kd;
 
   // 当前误差、上一次误差
-  float error = 0.0f;
-  float error_last = 0.0f;
+  float error;
+  float error_last;
 
-  // 输出 turn
-  float turn = 0.0f;
+  // 转向输出
+  float turn;
+
+  // 循线误差:转向输出 比例
+  float turn_ratio;
 
   // 输出限幅
-  float turn_limit = 1.0f;
+  float turn_limit;
 
   // 小误差死区
-  float deadband = 0.0f;
+  float deadband;
 };

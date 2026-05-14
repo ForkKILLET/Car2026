@@ -13,24 +13,9 @@ public:
                  const char *motor_r_gpio) :
       motor_l(motor_l_pwm, motor_l_gpio), motor_r(motor_r_pwm, motor_r_gpio)
   {
-  }
-
-  // 初始化
-  void init(const ControlParams &params)
-  {
-    encoder_sys.init(params.encoder);
-
     // 电机初始化
     motor_l.init();
     motor_r.init();
-
-    motor_l_ctrl.init(params.motor_l_pid);
-
-    motor_r_ctrl.init(params.motor_r_pid);
-
-    // 初始目标速度设为 0
-    motor_l_ctrl.set_target(0.0f);
-    motor_r_ctrl.set_target(0.0f);
   }
 
   // 设置左右轮目标速度
@@ -103,10 +88,11 @@ public:
 private:
   Motor motor_l;
   Motor motor_r;
+  EncoderSys &encoder_sys = EncoderSys::instance();
 
-  MotorSpeedCtrl motor_l_ctrl{};
-  MotorSpeedCtrl motor_r_ctrl{};
+  MotorSpeedCtrl motor_l_ctrl{MotorSide::Left};
+  MotorSpeedCtrl motor_r_ctrl{MotorSide::Right};
 };
 
 static ChassisControl chassis{
-    "/dev/zf_pwm_motor_2", "/dev/zf_gpio_motor_2", "/dev/zf_pwm_motor_1", "/dev/zf_gpio_motor_1"};
+    "/dev/zf_pwm_motor_1", "/dev/zf_gpio_motor_1", "/dev/zf_pwm_motor_2", "/dev/zf_gpio_motor_2"};

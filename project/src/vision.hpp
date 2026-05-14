@@ -3,70 +3,71 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <zf_common_headfile.hpp>
 
 #include "utils.hpp"
 
-constexpr uint8 HEIGHT = UVC_HEIGHT;
-constexpr uint8 WIDTH = UVC_WIDTH;
-constexpr uint8 X_MID = 93;
-constexpr uint8 X_MIN = 1;
-constexpr uint8 X_MAX = 186;
-constexpr uint8 Y_MAX = 119;
+constexpr uint8_t HEIGHT = 120;
+constexpr uint8_t WIDTH = 160;
+constexpr uint8_t X_MID = WIDTH / 2;
+constexpr uint8_t X_MIN = 1;
+constexpr uint8_t X_MAX = WIDTH - 1;
+constexpr uint8_t Y_MAX = HEIGHT - 1;
 
-constexpr uint8 OSTU_COUNTER_MAX = 10;
-constexpr uint8 OTSU_THRESHOLD_MIN = 20;
-constexpr uint8 OTSU_THRESHOLD_MAX = 200;
-constexpr uint8 OTSU_COMPRESS_RATIO = 1;
-constexpr uint8 OTSU_COMPRESS_RATIO_SQUARE = 1;
-constexpr uint8 OTSU_THRESHOLD_DELTA = 4;
+constexpr uint8_t OSTU_COUNTER_MAX = 10;
+constexpr uint8_t OTSU_THRESHOLD_MIN = 20;
+constexpr uint8_t OTSU_THRESHOLD_MAX = 200;
+constexpr uint8_t OTSU_COMPRESS_RATIO = 1;
+constexpr uint8_t OTSU_COMPRESS_RATIO_SQUARE = 1;
+constexpr uint8_t OTSU_THRESHOLD_DELTA = 4;
 
-constexpr uint8 Y_SEARCH_MIN = 35;
-constexpr uint8 Y_NORMAL_MIN = 60;
-constexpr uint8 Y_BD_MIN = 38;
-constexpr uint8 Y_BOTTOM_MIN = 78;
-constexpr uint8 Y_BOTTOM_BOTH_LOST_MIN = 110;
-constexpr uint8 Y_LP_END_MIN = 35;
-constexpr uint8 Y_XR_TOP_MIN = 50;
-constexpr uint8 Y_XR_TOP_MAX = 80;
-constexpr uint8 X_XR_TOP_MIN = 45;
-constexpr uint8 X_XR_TOP_MAX = 143;
-constexpr uint8 Y_XR_M_HEIGHT = 5;
-constexpr uint8 Y_XR_M_OFFSET = 2;
-constexpr uint8 Y_STRICT_G_MAX = 45;
-constexpr uint8 Y_MID_LINE_MIN = 95;
-constexpr uint8 X_CURVE_OFFSET = 25;
-constexpr uint8 DX_BD_MAX = 5;
-constexpr uint8 DX_BD_INV_MAX = 5;
-constexpr uint8 DX_M_MAX = 2;
-constexpr uint8 BD_LENGTH = 85;
-constexpr uint8 BD_NG_COUNT_MAX = 3;
-constexpr uint8 BD_G_COUNT_MAX = 2;
-constexpr int8 CV_CONVEX = +4;
-constexpr int8 LP_CONVEX = -4;
-constexpr uint8 LP_UP_COUNT_MAX = 3;
-constexpr uint8 LP_UP_FAILED_MAX = 3;
-constexpr uint8 LE_DN_MAX = 3;
-constexpr uint8 LE_UP_MAX = 3;
-constexpr uint8 LE_UP_COUNT_MAX = 3;
-constexpr uint8 Y_LP_MIN = 30;
-constexpr uint8 X_LP_CORNER_R_MIN = X_MIN;
-constexpr uint8 X_LP_CORNER_R_MAX = 150;
-constexpr uint8 X_LP_CORNER_L_MIN = 20;
-constexpr uint8 X_LP_CORNER_L_MAX = X_MAX;
-constexpr uint8 X_LP_CORNER_L_OFFSET = 5;
-constexpr uint8 X_LP_CORNER_R_OFFSET = 10;
-constexpr uint8 CONVEX_LIMIT = 2;
-constexpr uint8 BOTH_COUNT_MIN = 5;
+constexpr uint8_t Y_SEARCH_MIN = 35;
+constexpr uint8_t Y_NORMAL_MIN = 60;
+constexpr uint8_t Y_BD_MIN = 38;
+constexpr uint8_t Y_BOTTOM_MIN = 78;
+constexpr uint8_t Y_BOTTOM_BOTH_LOST_MIN = 110;
+constexpr uint8_t Y_LP_END_MIN = 35;
+constexpr uint8_t Y_XR_TOP_MIN = 50;
+constexpr uint8_t Y_XR_TOP_MAX = 80;
+constexpr uint8_t X_XR_TOP_MIN = WIDTH * 0.25;
+constexpr uint8_t X_XR_TOP_MAX = WIDTH * 0.75;
+constexpr uint8_t Y_XR_M_HEIGHT = 5;
+constexpr uint8_t Y_XR_M_OFFSET = 2;
+constexpr uint8_t Y_STRICT_G_MAX = 45;
+constexpr uint8_t Y_MID_LINE_MIN = 95;
+constexpr uint8_t X_CURVE_OFFSET = 25;
+constexpr uint8_t DX_BD_MAX = 5;
+constexpr uint8_t DX_BD_INV_MAX = 5;
+constexpr uint8_t DX_M_MAX = 2;
+constexpr uint8_t BD_LENGTH = 85;
+constexpr uint8_t BD_NG_COUNT_MAX = 3;
+constexpr uint8_t BD_G_COUNT_MAX = 2;
+constexpr int8_t CV_CONVEX = +4;
+constexpr int8_t LP_CONVEX = -4;
+constexpr uint8_t LP_UP_COUNT_MAX = 3;
+constexpr uint8_t LP_UP_FAILED_MAX = 3;
+constexpr uint8_t LE_DN_MAX = 3;
+constexpr uint8_t LE_UP_MAX = 3;
+constexpr uint8_t LE_UP_COUNT_MAX = 3;
+constexpr uint8_t Y_LP_MIN = 30;
+constexpr uint8_t X_LP_CORNER_R_MIN = X_MIN;
+constexpr uint8_t X_LP_CORNER_R_MAX = WIDTH * 0.8;
+constexpr uint8_t X_LP_CORNER_L_MIN = WIDTH * 0.2;
+constexpr uint8_t X_LP_CORNER_L_MAX = X_MAX;
+constexpr uint8_t X_LP_CORNER_L_OFFSET = 5;
+constexpr uint8_t X_LP_CORNER_R_OFFSET = 10;
+constexpr uint8_t CONVEX_LIMIT = 2;
+constexpr uint8_t BOTH_COUNT_MIN = 5;
 
-#define EMPTY 0
-#define ROAD 1
-#define BOUND 2
-#define MID_LINE 3
-#define BOUND_APP 4
-#define SPECIAL 5
+constexpr uint8_t EMPTY = 0;
+constexpr uint8_t ROAD = 1;
+constexpr uint8_t BOUND = 2;
+constexpr uint8_t MID_LINE = 3;
+constexpr uint8_t BOUND_APP = 4;
+constexpr uint8_t SPECIAL = 5;
 
-using Image = uint8 (*)[WIDTH];
+using Image = uint8_t (*)[WIDTH];
+using ConstImage = const uint8_t (*)[WIDTH];
+using ImagePtr = uint8_t *;
 
 enum ElementType {
   Zebra,
@@ -92,17 +93,16 @@ struct ImageResult {
   ElementType element_type;
 };
 
-static const uint8 STD_WIDTH[HEIGHT] = {
+static constexpr uint8_t STD_WIDTH[HEIGHT] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  7,  8,  9,  10, 11, 12, 13, 14,
-    15, 15, 16, 17, 18, 19, 19, 20, 21, 22, 23, 23, 24, 25, 26, 26, 27, 28, 29, 30, 30, 31, 32, 33,
-    34, 34, 35, 36, 37, 38, 38, 39, 40, 41, 42, 42, 43, 44, 45, 46, 46, 47, 48, 49, 50, 51, 51, 52,
-    53, 54, 55, 55, 56, 57, 58, 58, 59, 60, 61, 61, 62, 63, 64, 64, 65, 66, 67, 68, 68, 69, 70, 71,
-};
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,
+    3,  4,  5,  6,  7,  8,  8,  9,  10, 11, 12, 13, 14, 15, 16, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+    25, 25, 26, 27, 28, 29, 30, 31, 32, 33, 33, 34, 35, 36, 37, 38, 39, 40, 41, 41, 42, 43, 44, 45,
+    46, 47, 48, 49, 50, 50, 51, 52, 53, 54, 55, 56, 57, 58, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67};
 
-class VisionProcessor {
+class Vision {
 public:
-  VisionProcessor() = default;
+  Vision() = default;
 
   void process_image(Image image);
 
@@ -111,42 +111,38 @@ public:
     return image_result_;
   }
 
-  void set_loop_enabled(bool enabled)
+  ConstImage image() const
   {
-    loop_enabled_ = enabled;
-  }
-  bool loop_enabled() const
-  {
-    return loop_enabled_;
+    return image_;
   }
 
 private:
   enum class BoundStatus { None, Good, Bad };
   enum class SearchState { Bottom, NormalBound, Loop, CrossBound, Analyze, Mid, Done };
 
-  void set_point(Image image, uint8 x, uint8 y, uint8 type);
-  uint8 otsu_calc_threshold(Image image, uint8 min, uint8 max);
-  void otsu_binarize_image(Image image, uint8 threshold);
+  void set_point(Image image, uint8_t x, uint8_t y, uint8_t type);
+  uint8_t otsu_calc_threshold(Image image, uint8_t min, uint8_t max);
+  void otsu_binarize_image(Image image, uint8_t threshold);
   void search(Image image);
 
   ImageResult image_result_{};
-  uint8 otsu_counter_ = 0;
-  uint8 otsu_threshold_ = 0;
-  uint8 image_buffer_[HEIGHT][WIDTH] = {0};
+  uint8_t otsu_counter_ = 0;
+  uint8_t otsu_threshold_ = 0;
+  uint8_t image_[HEIGHT][WIDTH] = {0};
   bool loop_enabled_ = true;
 };
 
-void VisionProcessor::set_point(Image image, uint8 x, uint8 y, uint8 type)
+void Vision::set_point(Image image, uint8_t x, uint8_t y, uint8_t type)
 {
 #ifdef IMAGE_DEBUG
   image[y][x] = type;
 #endif
 }
 
-void VisionProcessor::process_image(Image image)
+void Vision::process_image(Image image)
 {
   if (image) {
-    std::memcpy(image_buffer_, image, sizeof(image_buffer_));
+    std::memcpy(image_, image, sizeof(image_));
   }
 
   if (otsu_counter_) {
@@ -154,23 +150,22 @@ void VisionProcessor::process_image(Image image)
   }
   else {
     if (otsu_threshold_)
-      otsu_threshold_ = otsu_calc_threshold(image_buffer_,
-                                            otsu_threshold_ - OTSU_THRESHOLD_DELTA,
-                                            otsu_threshold_ + OTSU_THRESHOLD_DELTA);
+      otsu_threshold_ = otsu_calc_threshold(
+          image_, otsu_threshold_ - OTSU_THRESHOLD_DELTA, otsu_threshold_ + OTSU_THRESHOLD_DELTA);
     else
-      otsu_threshold_ = otsu_calc_threshold(image_buffer_, OTSU_THRESHOLD_MIN, OTSU_THRESHOLD_MAX);
+      otsu_threshold_ = otsu_calc_threshold(image_, OTSU_THRESHOLD_MIN, OTSU_THRESHOLD_MAX);
     otsu_counter_ = OSTU_COUNTER_MAX;
   }
-  otsu_binarize_image(image_buffer_, otsu_threshold_);
-  search(image_buffer_);
+  otsu_binarize_image(image_, otsu_threshold_);
+  search(image_);
 }
 
-uint8 VisionProcessor::otsu_calc_threshold(Image image, uint8 min, uint8 max)
+uint8_t Vision::otsu_calc_threshold(Image image, uint8_t min, uint8_t max)
 {
   const int OTSU_PIXEL_COUNT = HEIGHT * WIDTH / OTSU_COMPRESS_RATIO_SQUARE;
   double var_max = 0;
-  uint8 k_best = min;
-  for (uint8 k = min; k <= max; k++) {
+  uint8_t k_best = min;
+  for (uint8_t k = min; k <= max; k++) {
     int c = 0, s = 0, sm = 0;
     for (int i = 0; i < HEIGHT; i += OTSU_COMPRESS_RATIO) {
       for (int j = 0; j < WIDTH; j += OTSU_COMPRESS_RATIO) {
@@ -198,23 +193,23 @@ uint8 VisionProcessor::otsu_calc_threshold(Image image, uint8 min, uint8 max)
   return k_best;
 }
 
-void VisionProcessor::otsu_binarize_image(Image image, uint8 threshold)
+void Vision::otsu_binarize_image(Image image, uint8_t threshold)
 {
-  for (uint8 i = 0; i < HEIGHT; i++)
-    for (uint8 j = 0; j < WIDTH; j++)
+  for (uint8_t i = 0; i < HEIGHT; i++)
+    for (uint8_t j = 0; j < WIDTH; j++)
       image[i][j] = image[i][j] > threshold;
 }
 
-void VisionProcessor::search(Image image)
+void Vision::search(Image image)
 {
   ElementType el = image_result_.element_type;
   bool prev_el_normal = el <= Normal;
 
   // Zebra detection
   if (image[Y_MAX][0] != ROAD) {
-    uint8 curr = ROAD;
-    uint8 change_count = 0;
-    for (uint8 x = X_MIN; x <= X_MAX; x++) {
+    uint8_t curr = ROAD;
+    uint8_t change_count = 0;
+    for (uint8_t x = X_MIN; x <= X_MAX; x++) {
       if (image[Y_MAX][x] != curr) {
         curr = image[Y_MAX][x];
         change_count++;
@@ -228,30 +223,30 @@ void VisionProcessor::search(Image image)
       image_result_.element_type = Normal;
   }
 
-  uint8 xl = 0, xr = 0, y = 0;
-  int16 dx = 0, xm = X_MID;
-  uint8 xls[HEIGHT] = {0}, xrs[HEIGHT] = {0};
+  uint8_t xl = 0, xr = 0, y = 0;
+  int16_t dx = 0, xm = X_MID;
+  uint8_t xls[HEIGHT] = {0}, xrs[HEIGHT] = {0};
   double ml = 0;
   double mr = 0;
   bool ml_set = false, mr_set = false;
   bool l_pad = false, r_pad = false;
 
-  uint8 y0l = 0, y0r = 0;
-  uint8 y_start = 0, y_end = 0;
+  uint8_t y0l = 0, y0r = 0;
+  uint8_t y_start = 0, y_end = 0;
   bool l_unset = true, r_unset = true;
   bool lost = false;
-  int8 l_convex = 0, r_convex = 0;
-  uint8 l_l = 0, l_r = 0, r_l = 0, r_r = 0;
-  uint8 l_l_cont = 0, r_r_cont = 0;
-  int8 l_dx = 0, r_dx = 0;
+  int8_t l_convex = 0, r_convex = 0;
+  uint8_t l_l = 0, l_r = 0, r_l = 0, r_r = 0;
+  uint8_t l_l_cont = 0, r_r_cont = 0;
+  int8_t l_dx = 0, r_dx = 0;
   bool le_failed = false;
 
-  uint8 l_ng_count = 0, r_ng_count = 0;
-  uint8 l_g_count = BD_G_COUNT_MAX, r_g_count = BD_G_COUNT_MAX;
+  uint8_t l_ng_count = 0, r_ng_count = 0;
+  uint8_t l_g_count = BD_G_COUNT_MAX, r_g_count = BD_G_COUNT_MAX;
   bool l_ng = true, r_ng = true;
   bool l_stop0 = false, r_stop0 = false, l_stop = false, r_stop = false;
-  uint8 l_segs = 0, r_segs = 0;
-  uint16 sw = 0;
+  uint8_t l_segs = 0, r_segs = 0;
+  uint16_t sw = 0;
   double so = 0;
   double kw = 1;
 
@@ -365,9 +360,9 @@ void VisionProcessor::search(Image image)
               if (dx == -DX_BD_INV_MAX + l_l_cont) {
                 xl += DX_BD_INV_MAX;
                 if (! le_failed && image[y - 1][xl] == EMPTY) {
-                  uint8 xc = xl, yc = y;
-                  uint8 dy = 0;
-                  uint8 up_count = 0;
+                  uint8_t xc = xl, yc = y;
+                  uint8_t dy = 0;
+                  uint8_t up_count = 0;
                   bool exit_lost = false;
                   for (; xc <= X_MAX; xc++) {
                     for (dy = 0; image[yc][xc] == EMPTY; yc++)
@@ -399,8 +394,8 @@ void VisionProcessor::search(Image image)
                     double m = (double) (xc - xlf) / (Y_MAX - yc);
                     for (y = Y_MAX - 1; y > yc; y--) {
                       xlf += m;
-                      xls[y] = (uint8) xlf;
-                      set_point(image, (uint8) xlf, y, BOUND_APP);
+                      xls[y] = (uint8_t) xlf;
+                      set_point(image, (uint8_t) xlf, y, BOUND_APP);
                     }
                     state = SearchState::Mid;
                     break;
@@ -506,9 +501,9 @@ void VisionProcessor::search(Image image)
               if (dx == DX_BD_INV_MAX - r_r_cont) {
                 xr -= DX_BD_INV_MAX;
                 if (! le_failed && l_stop0 && image[y - 1][xr] == EMPTY) {
-                  uint8 xc = xr, yc = y;
-                  uint8 dy = 0;
-                  uint8 up_count = 0;
+                  uint8_t xc = xr, yc = y;
+                  uint8_t dy = 0;
+                  uint8_t up_count = 0;
                   bool exit_lost = false;
                   for (; xc >= X_MIN; xc--) {
                     for (dy = 0; image[yc][xc] == EMPTY; yc++)
@@ -540,8 +535,8 @@ void VisionProcessor::search(Image image)
                     double m = (double) (xc - xrf) / (Y_MAX - yc);
                     for (y = Y_MAX - 1; y > yc; y--) {
                       xrf += m;
-                      xrs[y] = (uint8) xrf;
-                      set_point(image, (uint8) xrf, y, BOUND_APP);
+                      xrs[y] = (uint8_t) xrf;
+                      set_point(image, (uint8_t) xrf, y, BOUND_APP);
                     }
                     state = SearchState::Mid;
                     break;
@@ -654,8 +649,8 @@ void VisionProcessor::search(Image image)
           break;
         set_point(image, X_MIN, y, SPECIAL);
 
-        uint8 y0 = 0, y1 = 0, xc = 0, yc = 0;
-        uint8 up_count = 0, up_failed_count = 0;
+        uint8_t y0 = 0, y1 = 0, xc = 0, yc = 0;
+        uint8_t up_count = 0, up_failed_count = 0;
 
         bool loop_cancel = false;
         for (xl = X_MIN + 1;; xl++) {
@@ -669,7 +664,7 @@ void VisionProcessor::search(Image image)
                 loop_cancel = true;
                 break;
               }
-              xc = std::max((uint8) (xl - LP_UP_COUNT_MAX - X_LP_CORNER_L_OFFSET), X_MIN);
+              xc = std::max((uint8_t) (xl - LP_UP_COUNT_MAX - X_LP_CORNER_L_OFFSET), X_MIN);
               y_start = yc = y = y0;
               set_point(image, xc, yc, SPECIAL);
               break;
@@ -709,8 +704,8 @@ void VisionProcessor::search(Image image)
         double m = (double) (xc - xrf) / (Y_MAX - yc);
         for (y = Y_MAX - 1; y > yc; y--) {
           xrf += m;
-          xrs[y] = (uint8) xrf;
-          set_point(image, (uint8) xrf, y, BOUND_APP);
+          xrs[y] = (uint8_t) xrf;
+          set_point(image, (uint8_t) xrf, y, BOUND_APP);
         }
       }
       else {
@@ -726,8 +721,8 @@ void VisionProcessor::search(Image image)
           break;
         set_point(image, X_MAX, y, BOUND);
 
-        uint8 y0 = 0, xc = 0, yc = 0;
-        uint8 up_count = 0, up_failed_count = 0;
+        uint8_t y0 = 0, xc = 0, yc = 0;
+        uint8_t up_count = 0, up_failed_count = 0;
 
         bool loop_cancel = false;
         for (xr = X_MAX - 1;; xr--) {
@@ -741,7 +736,7 @@ void VisionProcessor::search(Image image)
                 loop_cancel = true;
                 break;
               }
-              xc = std::min((uint8) (xr + X_LP_CORNER_R_OFFSET), X_MAX);
+              xc = std::min((uint8_t) (xr + X_LP_CORNER_R_OFFSET), X_MAX);
               y_start = yc = y;
               set_point(image, xc, yc, SPECIAL);
               break;
@@ -777,8 +772,8 @@ void VisionProcessor::search(Image image)
         double m = (double) (xc - xlf) / (Y_MAX - yc);
         for (y = Y_MAX - 1; y > yc; y--) {
           xlf += m;
-          xls[y] = (uint8) xlf;
-          set_point(image, (uint8) xlf, y, BOUND_APP);
+          xls[y] = (uint8_t) xlf;
+          set_point(image, (uint8_t) xlf, y, BOUND_APP);
         }
       }
       state = SearchState::Mid;
@@ -883,15 +878,15 @@ void VisionProcessor::search(Image image)
         break;
       }
 
-      uint8 y0 = std::max(y_start, (uint8) (y - Y_XR_M_HEIGHT - Y_XR_M_OFFSET));
-      uint8 y1 = y - Y_XR_M_OFFSET;
+      uint8_t y0 = std::max(y_start, (uint8_t) (y - Y_XR_M_HEIGHT - Y_XR_M_OFFSET));
+      uint8_t y1 = y - Y_XR_M_OFFSET;
       ml = (double) (xls[y1] - xls[y0]) / (y1 - y0);
       mr = (double) (xrs[y1] - xrs[y0]) / (y1 - y0);
 
 #ifdef IMAGE_DEBUG
       for (; y < Y_MAX; y++) {
-        setImg(image, xls[y0] + (int8) (ml * (y - y0)), y, BOUND_APP);
-        setImg(image, xrs[y0] + (int8) (mr * (y - y0)), y, BOUND_APP);
+        set_point(image, xls[y0] + (int8_t) (ml * (y - y0)), y, BOUND_APP);
+        set_point(image, xrs[y0] + (int8_t) (mr * (y - y0)), y, BOUND_APP);
       }
 #endif
       state = SearchState::Analyze;
@@ -939,8 +934,8 @@ void VisionProcessor::search(Image image)
     case SearchState::Mid: {
       so = 0;
       sw = 0;
-      int8 dxm = 0;
-      uint8 both_count = 0;
+      int8_t dxm = 0;
+      uint8_t both_count = 0;
       for (y = y_end; y >= y_start; y--) {
         xl = xls[y];
         xr = xrs[y];
@@ -973,7 +968,7 @@ void VisionProcessor::search(Image image)
         set_point(image, xm, y, MID_LINE);
       }
       image_result_.offset = so / sw;
-      set_point(image, X_MID + (int8) (image_result_.offset), Y_MAX, SPECIAL);
+      set_point(image, X_MID + (int8_t) (image_result_.offset), Y_MAX, SPECIAL);
       state = SearchState::Done;
       break;
     }
